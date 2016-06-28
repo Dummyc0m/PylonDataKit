@@ -1,0 +1,19 @@
+{
+  "onlineUUID": "the online uuid",
+  "offlineUUID": "the offline uuid",
+  "scores": {
+    "game1": 69,
+    "game2": 69
+  },
+  "cosmetics": {
+    "hat1": true,
+    "hat2": false
+  },
+  "perks": {
+    "joinFull": true,
+    "fly": false
+  },
+  "items": {
+
+  }
+}
