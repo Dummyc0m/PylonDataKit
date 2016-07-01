@@ -1,10 +1,15 @@
 package com.dummyc0m.pylon.datakit
 
-import com.dummyc0m.pylon.datakit.database.NioDataHandler
-import com.dummyc0m.pylon.datakit.packet.*
-import com.dummyc0m.pylon.datakit.packet.handlers.*
+import com.dummyc0m.pylon.datakit.data.NioDataHandler
+import com.dummyc0m.pylon.datakit.netty.DataKitServerInitializer
+import com.dummyc0m.pylon.datakit.network.*
+import com.dummyc0m.pylon.datakit.network.handler.DataKitDataMessageHandler
+import com.dummyc0m.pylon.datakit.network.handler.DeltaMessageHandler
+import com.dummyc0m.pylon.datakit.network.message.DataMessage
+import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
 import com.dummyc0m.pylon.pyloncore.DBConnectionFactory
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.channel.Channel
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.LogLevel
@@ -13,41 +18,52 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.SelfSignedCertificate
 import io.netty.util.concurrent.DefaultEventExecutorGroup
 
-class DataKit(val ip: String, val port: Int, val key: String, val dbType: String, val dbUrl: String, val dbUsername: String, val dbPassword: String, val estimateLoad: Int) {
-    private val packetManager: PacketManager = PacketManager()
+class DataKit internal constructor(private val ip: String,
+              private val port: Int,
+              private val key: String,
+              private val dbType: String,
+              private val dbUrl: String,
+              private val dbUsername: String,
+              private val dbPassword: String,
+              private val estimateLoad: Int) {
+    private val connectionFactory = DBConnectionFactory(dbType, dbUrl, dbUsername, dbPassword)
+    private val messageManager: MessageManager = MessageManager()
+    val dataHandler = NioDataHandler(connectionFactory, estimateLoad, messageManager)
 
-    fun run() {
-        val connectionFactory = DBConnectionFactory(dbType, dbUrl, dbUsername, dbPassword)
-        val dataHandler = NioDataHandler(connectionFactory, estimateLoad)
-        registerPackets(dataHandler)
+    private lateinit var channel: Channel
+    private lateinit var bossGroup: NioEventLoopGroup
+    private lateinit var workerGroup: NioEventLoopGroup
+    private lateinit var eventGroup: DefaultEventExecutorGroup
 
+    fun start(): DataKit {
         val ssc = SelfSignedCertificate()
         val sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build()
 
-        val bossGroup = NioEventLoopGroup(1)
-        val workerGroup = NioEventLoopGroup()
-        val eventGroup = DefaultEventExecutorGroup(16)
-        try {
-            val b = ServerBootstrap()
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel::class.java)
-                    .handler(LoggingHandler(LogLevel.INFO))
-                    .childHandler(DataKitServerInitializer(sslCtx, eventGroup, key, packetManager))
+        bossGroup = NioEventLoopGroup(1)
+        workerGroup = NioEventLoopGroup()
+        eventGroup = DefaultEventExecutorGroup(16)
+        val b = ServerBootstrap()
+        b.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel::class.java)
+                .handler(LoggingHandler(LogLevel.INFO))
+                .childHandler(DataKitServerInitializer(sslCtx, eventGroup, key, messageManager))
 
-            b.bind(ip, port).sync().channel().closeFuture().sync()
-        } finally {
-            bossGroup.shutdownGracefully()
-            workerGroup.shutdownGracefully()
-            eventGroup.shutdownGracefully()
-        }
+        channel = b.bind(ip, port).sync().channel()
+        dataHandler.init()
+        return this
     }
 
-    private fun registerPackets(dataHandler: NioDataHandler) {
-        packetManager.registerPacket(DataLoadPacket::class.java, DataLoadPacketHandler(dataHandler))
-        packetManager.registerPacket(DataUnloadPacket::class.java, DataUnloadPacketHandler(dataHandler))
-        packetManager.registerPacket(DataUnloadAllPacket::class.java, DataUnloadAllPacketHandler(dataHandler))
-        packetManager.registerPacket(DataQueryPacket::class.java, DataQueryPacketHandler(dataHandler))
-        packetManager.registerPacket(DataSavePacket::class.java, DataSavePacketHandler(dataHandler))
-        packetManager.registerPacket(DataSaveAllPacket::class.java, DataSaveAllPacketHandler(dataHandler))
+    fun registerHandlers() {
+        messageManager.registerHandler(DataMessage::class.java, DataKitDataMessageHandler())
+        messageManager.registerHandler(DeltaMessage::class.java, DeltaMessageHandler())
+    }
+
+    fun shutdown() {
+        messageManager.shutdown()
+        channel.closeFuture().sync()
+        bossGroup.shutdownGracefully()
+        workerGroup.shutdownGracefully()
+        eventGroup.shutdownGracefully()
+        dataHandler.unloadAll()
     }
 }

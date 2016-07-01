@@ -6,7 +6,7 @@ import java.util.logging.Logger
 /**
  * Created by Dummy on 6/13/16.
  */
-object Log {
+internal object Log {
     private val logger = Logger.getLogger("DataKit")
 
     fun info(msg: String) {

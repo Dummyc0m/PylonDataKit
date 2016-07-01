@@ -1,6 +1,11 @@
 package com.dummyc0m.pylon.datakit.client
 
-import com.dummyc0m.pylon.datakit.packet.*
+import com.dummyc0m.pylon.datakit.network.*
+import com.dummyc0m.pylon.datakit.network.message.DataMessage
+import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
+import com.dummyc0m.pylon.datakit.network.message.Message
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
@@ -14,28 +19,31 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 /**
  * Created by Dummy on 6/13/16.
  */
-class DataClient(val host: String, val port: Int, val key: String,
-                 val dataPacketHandler: PacketHandler<DataPacket>,
-                 val dataFailureHandler: PacketHandler<DataFailurePacket>) {
+class DataClient(val host: String,
+                 val port: Int,
+                 val key: String,
+                 val serverId: String,
+                 val dataMessageHandler: MessageHandler<DataMessage>) {
     private lateinit var channel: Channel
-    private lateinit var lastWriteFuture: ChannelFuture
     private lateinit var eventLoop: NioEventLoopGroup
-    private val packetManager: PacketManager = PacketManager()
+    private val messageManager: MessageManager = MessageManager()
 
     fun start() {
-        registerPackets()
-
         val sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build()
         eventLoop = NioEventLoopGroup()
         val b = Bootstrap()
                 .group(eventLoop)
                 .channel(NioSocketChannel::class.java)
                 .handler(LoggingHandler(LogLevel.INFO))
-                .handler(DataClientInitializer(sslCtx, host, port, packetManager))
+                .handler(DataClientInitializer(sslCtx, host, port, messageManager))
         channel = b.connect(host, port).sync().channel()
 
         // Authenticate
-        lastWriteFuture = channel.writeAndFlush(AuthMessage(key))
+        channel.writeAndFlush(JsonNodeFactory(false)
+                .objectNode()
+                .put("key", key)
+                .put("id", serverId)
+                .toString())
 
 //            val `in` = BufferedReader(InputStreamReader(System.`in`))
 //            while (true) {
@@ -52,17 +60,17 @@ class DataClient(val host: String, val port: Int, val key: String,
 //            }
     }
 
-    private fun registerPackets() {
-        packetManager.registerPacket(DataPacket::class.java, dataPacketHandler)
-        packetManager.registerPacket(DataFailurePacket::class.java, dataFailureHandler)
+    private fun registerHandlers() {
+        messageManager.registerHandler(DataMessage::class.java, dataMessageHandler)
+        messageManager.registerHandler(DeltaMessage::class.java, ClientDeltaMessageHandler())
     }
 
-    fun send(packet: Packet) {
-        lastWriteFuture = channel.writeAndFlush(packet)
+    fun send(message: Message) {
+        messageManager.send(message, channel)
     }
 
     fun shutdown() {
-        lastWriteFuture.sync()
+        messageManager.shutdown()
         channel.closeFuture().sync()
         eventLoop.shutdownGracefully()
     }

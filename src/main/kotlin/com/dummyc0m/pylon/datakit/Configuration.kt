@@ -10,8 +10,6 @@ class Configuration {
 
     var key = "defaultKey"
 
-    var tablePrefic = "pylon_"
-
     val dbType = "mysql"
 
     val dbUrl = "databaseUrl"
@@ -21,8 +19,4 @@ class Configuration {
     val dbPassword = "password"
 
     val estimateLoad = 20
-
-    val saveInterval = 600
-
-    val timeout = 10
 }
