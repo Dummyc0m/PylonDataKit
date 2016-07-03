@@ -1,14 +1,28 @@
 package com.dummyc0m.pylon.datakit.data.task
 
+import com.dummyc0m.pylon.datakit.Log
 import com.dummyc0m.pylon.datakit.data.DataStore
-import com.fasterxml.jackson.databind.JsonNode
-import java.util.*
+import com.dummyc0m.pylon.datakit.data.NioDataHandler
+import com.dummyc0m.pylon.datakit.data.State
+import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
 
 /**
  * Created by Dummy on 6/14/16.
  */
-class FeedbackTask(val offlineUUID: UUID, val data: JsonNode, val store: DataStore): Runnable {
+class FeedbackTask(private val deltaMessage: DeltaMessage,
+                   private val store: DataStore,
+                   private val dataHandler: NioDataHandler): Runnable {
     override fun run() {
-        //todo dereference the data
+        val data = store.getUserDataOffline(deltaMessage.offlineUUID)
+        if(data != null) {
+            data.patch(deltaMessage.nodeDataMap)
+            if(deltaMessage.dereference) {
+                data.dereference()
+            }
+            if(data.state === State.FEEDBACK && data.references === 0) {
+                Log.info("Unloading (onlineUUID) ${data.onlineUUID}")
+                dataHandler.unload(data.onlineUUID)
+            }
+        }
     }
 }

@@ -6,9 +6,9 @@ import io.netty.channel.ChannelHandlerContext
 /**
  * Created by Dummy on 6/13/16.
  */
-interface MessageHandler<T: Message> {
+interface MessageHandler<in T: Message> {
     /**
      * Inbound
      */
-    fun <T: Message> handle(ctx: ChannelHandlerContext, message: T)
+    fun handle(ctx: ChannelHandlerContext, message: T)
 }

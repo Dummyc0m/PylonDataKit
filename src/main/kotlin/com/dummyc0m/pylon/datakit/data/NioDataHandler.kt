@@ -2,6 +2,7 @@ package com.dummyc0m.pylon.datakit.data
 
 import com.dummyc0m.pylon.datakit.data.task.*
 import com.dummyc0m.pylon.datakit.network.MessageManager
+import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
 import com.dummyc0m.pylon.pyloncore.DBConnectionFactory
 import com.fasterxml.jackson.databind.JsonNode
 import java.util.*
@@ -41,12 +42,13 @@ class NioDataHandler(private val factory: DBConnectionFactory,
     }
 
     fun load(onlineUUID: UUID, offlineUUID: UUID, callback:() -> Unit) {
-        store.storeUser(UserData(onlineUUID, offlineUUID, State.LOADING))
-        service.submit(LoadTask(factory, onlineUUID, store, callback))
+        val userData = UserData(onlineUUID, offlineUUID, State.LOADING)
+        store.storeUser(userData)
+        service.submit(LoadTask(factory, onlineUUID, userData, callback))
     }
 
-    fun save(offlineUUID: UUID, data: JsonNode) {
-        service.submit(FeedbackTask(offlineUUID, data, store))
+    internal fun feedback(deltaMessage: DeltaMessage) {
+        service.submit(FeedbackTask(deltaMessage, store, this))
     }
 
     fun unload(onlineUUID: UUID) {

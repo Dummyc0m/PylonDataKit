@@ -2,20 +2,30 @@ package com.dummyc0m.pylon.datakit.network.message
 
 import com.dummyc0m.pylon.datakit.data.UserData
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.*
 
 /**
  * Created by Dummy on 6/30/16.
  */
 class DataMessage : Message {
-    private var _jsonData: JsonNode = UserData.emptyData
-    val jsonData: JsonNode
-        get() = _jsonData
+    var jsonData: JsonNode = UserData.emptyData
+    var offlineUUID = defaultUUID
 
     override fun fromJson(json: JsonNode) {
-        _jsonData = json
+        jsonData = json.get("data")
+        offlineUUID = UUID.fromString(json.get("uuid").textValue())
     }
 
     override fun toJson(): JsonNode {
-        return _jsonData
+        val rootNode = mapper.createObjectNode()
+        rootNode.set("data", jsonData)
+        rootNode.put("uuid", offlineUUID.toString())
+        return jsonData
+    }
+
+    companion object {
+        private val mapper = ObjectMapper()
+        private val defaultUUID = UUID.randomUUID()
     }
 }

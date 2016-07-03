@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 class MessageManager {
     internal val channels: ChannelGroup = DefaultChannelGroup(GlobalEventExecutor.INSTANCE)
     private val serverIdMap: MutableMap<String, ChannelId> = ConcurrentHashMap()
-    private val handlerMap: MutableMap<Int, MessageHandler<out Message>> = ConcurrentHashMap()
+    private val handlerMap: MutableMap<Int, MessageHandler<Message>> = ConcurrentHashMap()
     private val messageIdMap: MutableMap<Int, Class<out Message>> = ConcurrentHashMap()
     private val idMessageMap: MutableMap<Class<out Message>, Int> = ConcurrentHashMap()
     private var messageId = 0
@@ -28,7 +28,7 @@ class MessageManager {
     internal fun <T: Message> registerHandler(messageClass: Class<T>, handler: MessageHandler<T>) {
         messageIdMap.put(messageId, messageClass)
         idMessageMap.put(messageClass, messageId)
-        handlerMap.put(messageId++, handler)
+        handlerMap.put(messageId++, handler as MessageHandler<Message>)
     }
 
     internal fun broadcast(message: Message) {
@@ -43,6 +43,11 @@ class MessageManager {
         node.put("id", idMessageMap.get(message.javaClass))
                 .set("msg", message.toJson())
         lastWriteFuture = channel.writeAndFlush(node.toString())
+    }
+
+    internal fun send(message: Message, serverId: String) {
+        //assume good input
+        send(message, channels.find(serverIdMap.get(serverId)!!))
     }
 
     internal fun handle(ctx: ChannelHandlerContext, json: String) {

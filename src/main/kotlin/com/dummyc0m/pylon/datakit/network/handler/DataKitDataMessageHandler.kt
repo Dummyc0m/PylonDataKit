@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandlerContext
  * Created by Dummy on 7/1/16.
  */
 class DataKitDataMessageHandler: MessageHandler<DataMessage> {
-    override fun <T : Message> handle(ctx: ChannelHandlerContext, message: T) {
-
+    override fun handle(ctx: ChannelHandlerContext, message: DataMessage) {
+        //intentionally blank
     }
 }

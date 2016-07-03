@@ -19,7 +19,7 @@ class AuthenticationHandler(private val key: String, private val messageManager:
         try {
             val json = mapper.readTree(p1)
             if (key.equals(json.get("key")?.textValue()) && json.has("id")) {
-                Log.info(p0.name() + " Authenticated")
+                Log.info("${p0.name()} bukkit authenticated")
                 val id = json.get("id").textValue()
                 if(messageManager.contains(id)) {
                     Log.wtf(p0.name() + " Id Conflict")

@@ -55,7 +55,7 @@ class DataKit internal constructor(private val ip: String,
 
     fun registerHandlers() {
         messageManager.registerHandler(DataMessage::class.java, DataKitDataMessageHandler())
-        messageManager.registerHandler(DeltaMessage::class.java, DeltaMessageHandler())
+        messageManager.registerHandler(DeltaMessage::class.java, DeltaMessageHandler(dataHandler))
     }
 
     fun shutdown() {

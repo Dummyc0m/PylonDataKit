@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandlerContext
  * Created by Dummy on 7/1/16.
  */
 class ClientDeltaMessageHandler : MessageHandler<DeltaMessage> {
-    override fun <T : Message> handle(ctx: ChannelHandlerContext, message: T) {
+    override fun handle(ctx: ChannelHandlerContext, message: DeltaMessage) {
 
     }
 }

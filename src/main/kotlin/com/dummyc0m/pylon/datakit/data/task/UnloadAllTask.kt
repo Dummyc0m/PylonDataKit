@@ -2,13 +2,20 @@ package com.dummyc0m.pylon.datakit.data.task
 
 import com.dummyc0m.pylon.datakit.Log
 import com.dummyc0m.pylon.datakit.data.DataStore
+import com.dummyc0m.pylon.datakit.data.NioDataHandler
+import com.dummyc0m.pylon.datakit.data.State
 
 /**
  * Created by Dummy on 6/14/16.
  */
-class UnloadAllTask(private val store: DataStore) : Runnable {
+class UnloadAllTask(private val store: DataStore,
+                    private val dataHandler: NioDataHandler) : Runnable {
     override fun run() {
-        Log.info("Waiting for users to unload")
-        //TODO loop over references and check 0
+        Log.info("Forcibly unloading all data")
+        for((uuid, data) in store.dataMap) {
+            if(data.state != State.LOADING) {
+                dataHandler.unload(data.onlineUUID)
+            }
+        }
     }
 }

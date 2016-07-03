@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Created by Dummy on 6/14/16.
  */
 class DataStore(estimateLoad: Int) {
-    private val dataMap: MutableMap<UUID, UserData>
+    internal val dataMap: MutableMap<UUID, UserData>
     private val uuidMap: MutableMap<UUID, UUID>
 
     init {

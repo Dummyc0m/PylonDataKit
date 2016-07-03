@@ -1,12 +1,13 @@
 package com.dummyc0m.pylon.datakit.data.task
 
+import com.dummyc0m.pylon.datakit.Log
 import com.dummyc0m.pylon.datakit.data.DataStore
-import com.dummyc0m.pylon.datakit.data.UserData
 import com.dummyc0m.pylon.pyloncore.DBConnectionFactory
 import java.util.*
 
 /**
  * Created by Dummy on 6/14/16.
+ * only call when reference is 0
  */
 class UnloadTask(private val onlineUUID: UUID,
                  private val store: DataStore,
@@ -19,9 +20,12 @@ class UnloadTask(private val onlineUUID: UUID,
             statement.setString(1, userData.data.toString())
             statement.setString(2, onlineUUID.toString())
             statement.execute()
+        } else {
+            Log.wtf("User (onlineUUID) $onlineUUID does not exist")
         }
         statement.close()
         connection.close()
+        store.deleteUserOnline(onlineUUID)
     }
 
     companion object {
