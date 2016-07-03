@@ -1,0 +1,5 @@
+name: DataKitBungee
+version: ${project.version}
+main: com.dummyc0m.pylon.datakitbungee.DataKitBungee
+author: Dummyc0m
+prefix: DataKitBungee

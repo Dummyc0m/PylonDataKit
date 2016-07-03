@@ -1,0 +1,5 @@
+name: DataKitBukkit
+version: ${project.version}
+main: com.dummyc0m.pylon.datakitbukkit.DataKitBukkit
+author: Dummyc0m
+prefix: DataKitBukkit
