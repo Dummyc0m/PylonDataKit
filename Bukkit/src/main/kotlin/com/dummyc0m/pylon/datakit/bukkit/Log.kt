@@ -1,4 +1,4 @@
-package com.dummyc0m.pylon.datakitbungee
+package com.dummyc0m.pylon.datakit.bukkit
 
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -23,5 +23,9 @@ internal object Log {
 
     fun wtf(msg: String, thrown: Throwable) {
         logger.log(Level.SEVERE, msg, thrown)
+    }
+
+    fun debug(msg: String) {
+        logger.log(Level.WARNING, "!DEBUG! $msg")
     }
 }

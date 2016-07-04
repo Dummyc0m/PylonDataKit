@@ -38,9 +38,10 @@ class DataKitServerInitializer(private val sslContext: SslContext,
 
         pipeline.addLast("stringdecoder", StringDecoder(CharsetUtil.UTF_8))
 
+        pipeline.addLast("frameencoder", LengthFieldPrepender(3))
+
         pipeline.addLast("stringencoder", StringEncoder(CharsetUtil.UTF_8))
 
-        pipeline.addLast("frameencoder", LengthFieldPrepender(3))
         // and then business logic.
         pipeline.addLast("authenticator", AuthenticationHandler(key, messageManager))
         pipeline.addLast(eventExecutorGroup, DataKitServerHandler(messageManager))

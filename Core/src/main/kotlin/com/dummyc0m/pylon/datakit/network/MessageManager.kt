@@ -1,5 +1,6 @@
 package com.dummyc0m.pylon.datakit.network
 
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.network.message.Message
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.Channel
@@ -38,6 +39,7 @@ class MessageManager {
     }
 
     internal fun send(message: Message, channel: Channel) {
+        DataKitLog.debug("${message.toString()} sent to ${channel.id().toString()}")
         val node = mapper.createObjectNode()
         node.put("id", idMessageMap.get(message.javaClass))
                 .set("msg", message.toJson())
@@ -50,6 +52,7 @@ class MessageManager {
     }
 
     internal fun handle(ctx: ChannelHandlerContext, json: String) {
+        DataKitLog.debug("received raw data from ${ctx.name()}")
         try {
             val jsonNode = mapper.readTree(json)
             val messageId = jsonNode.get("id").intValue()
@@ -76,6 +79,7 @@ class MessageManager {
     }
 
     internal fun shutdown() {
+        DataKitLog.debug("MessageManager shutting down")
         lastWriteFuture?.sync()
     }
 }

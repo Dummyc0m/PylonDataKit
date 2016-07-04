@@ -12,8 +12,6 @@ import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.Channel
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.handler.logging.LogLevel
-import io.netty.handler.logging.LoggingHandler
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.SelfSignedCertificate
 import io.netty.util.concurrent.DefaultEventExecutorGroup
@@ -45,6 +43,7 @@ class DataKit internal constructor(private val ip: String,
 
     fun start(): DataKit {
         registerHandlers()
+        dataHandler.init()
         val ssc = SelfSignedCertificate()
         val sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build()
 
@@ -55,12 +54,11 @@ class DataKit internal constructor(private val ip: String,
 
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
-                .handler(LoggingHandler(LogLevel.INFO))
+//                .handler(LoggingHandler(LogLevel.DEBUG))
                 .childHandler(DataKitServerInitializer(sslCtx, eventGroup, key, messageManager))
 
         channel = b.bind(ip, port).sync().channel()
-        dataHandler.init()
-        Log.info("Started on $ip:$port")
+        DataKitLog.info("Started on $ip:$port")
         return this
     }
 
@@ -70,9 +68,9 @@ class DataKit internal constructor(private val ip: String,
     }
 
     fun shutdown() {
-        Log.info("Shutting down")
+        DataKitLog.info("Shutting down")
         messageManager.shutdown()
-        channel.closeFuture().sync()
+        channel.close().sync()
         bossGroup.shutdownGracefully()
         workerGroup.shutdownGracefully()
         eventGroup.shutdownGracefully()

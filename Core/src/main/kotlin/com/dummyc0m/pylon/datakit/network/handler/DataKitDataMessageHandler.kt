@@ -1,5 +1,6 @@
 package com.dummyc0m.pylon.datakit.network.handler
 
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.network.MessageHandler
 import com.dummyc0m.pylon.datakit.network.message.DataMessage
 import io.netty.channel.ChannelHandlerContext
@@ -9,6 +10,6 @@ import io.netty.channel.ChannelHandlerContext
  */
 class DataKitDataMessageHandler: MessageHandler<DataMessage> {
     override fun handle(ctx: ChannelHandlerContext, message: DataMessage) {
-        //intentionally blank
+        DataKitLog.wtf("Server received DataMessage")
     }
 }

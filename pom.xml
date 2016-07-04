@@ -51,7 +51,19 @@
     </dependencies>
 
     <properties>
+        <bukkit.version>LATEST</bukkit.version>
         <kotlin.version>1.0.3</kotlin.version>
+        <bungee.version>LATEST</bungee.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>Spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>bungeecord-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
 </project>

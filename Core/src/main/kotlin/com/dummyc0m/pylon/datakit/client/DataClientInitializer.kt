@@ -30,8 +30,11 @@ class DataClientInitializer(private val sslContext: SslContext,
 
         // On top of the SSL handler, add the text line codec.
         pipeline.addLast("framedecoder", LengthFieldBasedFrameDecoder(16777215, 0, 3, 0, 3))
-        pipeline.addLast("frameencoder", LengthFieldPrepender(3))
+
         pipeline.addLast("stringdecoder", StringDecoder(CharsetUtil.UTF_8))
+
+        pipeline.addLast("frameencoder", LengthFieldPrepender(3))
+
         pipeline.addLast("stringencoder", StringEncoder(CharsetUtil.UTF_8))
 
         // and then business logic.

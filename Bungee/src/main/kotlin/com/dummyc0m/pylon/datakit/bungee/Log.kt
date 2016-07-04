@@ -1,4 +1,4 @@
-package com.dummyc0m.pylon.datakit
+package com.dummyc0m.pylon.datakit.bungee
 
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -7,7 +7,7 @@ import java.util.logging.Logger
  * Created by Dummy on 6/13/16.
  */
 internal object Log {
-    private val logger = Logger.getLogger("DataKit")
+    lateinit var logger: Logger
 
     fun info(msg: String) {
         logger.info(msg)

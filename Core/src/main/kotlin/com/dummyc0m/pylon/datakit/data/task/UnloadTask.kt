@@ -1,8 +1,9 @@
 package com.dummyc0m.pylon.datakit.data.task
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.data.DataStore
 import com.dummyc0m.pylon.pyloncore.DBConnectionFactory
+import java.sql.SQLException
 import java.util.*
 
 /**
@@ -13,19 +14,23 @@ class UnloadTask(private val onlineUUID: UUID,
                  private val store: DataStore,
                  private val factory: DBConnectionFactory) : Runnable {
     override fun run() {
-        val connection = factory.create()
-        val statement = connection.prepareStatement(SAVE)
-        val userData = store.getUserDataOnline(onlineUUID)
-        if(userData != null) {
-            statement.setString(1, userData.data.toString())
-            statement.setString(2, onlineUUID.toString())
-            statement.execute()
-        } else {
-            Log.wtf("User (onlineUUID) $onlineUUID does not exist")
+        try {
+            val connection = factory.create()
+            val statement = connection.prepareStatement(SAVE)
+            val userData = store.getUserDataOnline(onlineUUID)
+            if (userData != null) {
+                statement.setString(1, userData.data.toString())
+                statement.setString(2, onlineUUID.toString())
+                statement.execute()
+                store.deleteUserOnline(onlineUUID)
+            } else {
+                DataKitLog.debug("User (onlineUUID) $onlineUUID does not exist when unloading")
+            }
+            statement.close()
+            connection.close()
+        } catch (e: SQLException) {
+            DataKitLog.wtf("Failed to unload and save user data (OnlineUUID) $onlineUUID", e)
         }
-        statement.close()
-        connection.close()
-        store.deleteUserOnline(onlineUUID)
     }
 
     companion object {

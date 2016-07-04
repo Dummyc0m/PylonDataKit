@@ -1,5 +1,6 @@
 package com.dummyc0m.pylon.datakit.data
 
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.data.task.*
 import com.dummyc0m.pylon.datakit.network.MessageManager
 import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
@@ -36,10 +37,27 @@ class NioDataHandler(private val factory: DBConnectionFactory,
         connection.close()
     }
 
-    fun load(onlineUUID: UUID, offlineUUID: UUID, callback:() -> Unit) {
-        val userData = UserData(onlineUUID, offlineUUID, State.LOADING)
-        store.storeUser(userData)
-        service.submit(LoadTask(factory, onlineUUID, userData, callback))
+    /**
+     * callback, true if successfully loaded
+     */
+    fun load(onlineUUID: UUID, offlineUUID: UUID, callback: (Boolean) -> Unit) {
+        DataKitLog.debug("Checking (onlineUUID) $onlineUUID")
+        val prevData = store.getUserDataOnline(onlineUUID)
+        if (prevData != null) {
+            if (prevData.state == State.FEEDBACK && prevData.references !== 0) {
+                prevData.state = State.LOADED
+                DataKitLog.debug("(onlineUUID) $onlineUUID already loaded, using it")
+                callback.invoke(true)
+            } else {
+                DataKitLog.warn("(onlineUUID) $onlineUUID beep beep, connection throttled")
+                callback.invoke(false)
+            }
+        } else {
+            DataKitLog.debug("Loading (onlineUUID) $onlineUUID")
+            val userData = UserData(onlineUUID, offlineUUID, State.LOADING)
+            store.storeUser(userData)
+            service.submit(LoadTask(factory, onlineUUID, userData, callback))
+        }
     }
 
     internal fun feedback(deltaMessage: DeltaMessage) {
@@ -47,15 +65,27 @@ class NioDataHandler(private val factory: DBConnectionFactory,
     }
 
     fun unload(onlineUUID: UUID) {
+        store.getUserDataOnline(onlineUUID)?.state = State.UNLOADING
         service.submit(UnloadTask(onlineUUID, store, factory))
     }
 
+    fun offline(onlineUUID: UUID) {
+        val data = store.getUserDataOnline(onlineUUID)
+        if (data != null && data.state !== State.UNLOADING) {
+            data.state = State.FEEDBACK
+            if (data.references === 0) {
+                unload(onlineUUID)
+            }
+        }
+    }
+
     fun send(offlineUUID: UUID, onlineUUID: UUID, serverId: String) {
+        DataKitLog.debug("Sending (onlineUUID) $onlineUUID to $serverId")
         service.submit(SendTask(offlineUUID, store.getUserDataOnline(onlineUUID), serverId, messageManager))
     }
 
     fun unloadAll() {
         service.submit(UnloadAllTask(store, this))
-        service.awaitTermination(60, TimeUnit.SECONDS)
+        service.awaitTermination(10, TimeUnit.SECONDS)
     }
 }

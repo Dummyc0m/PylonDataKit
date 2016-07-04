@@ -22,11 +22,17 @@ class DataMessage : Message {
         val rootNode = mapper.createObjectNode()
         rootNode.set("data", jsonData)
         rootNode.put("uuid", offlineUUID.toString())
-        return jsonData
+        return rootNode
+    }
+
+    override fun toString(): String {
+        return "DataMessage(jsonData=$jsonData, offlineUUID=$offlineUUID)"
     }
 
     companion object {
         private val mapper = ObjectMapper()
         private val defaultUUID = UUID.randomUUID()
     }
+
+
 }

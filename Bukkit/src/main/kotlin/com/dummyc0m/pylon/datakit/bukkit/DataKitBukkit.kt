@@ -1,9 +1,9 @@
-package com.dummyc0m.pylon.datakitbukkit
+package com.dummyc0m.pylon.datakit.bukkit
 
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.client.DataClient
 import com.dummyc0m.pylon.datakit.client.DataClientBootstrap
 import com.dummyc0m.pylon.datakit.network.message.DeltaMessage
-import com.dummyc0m.pylon.datakitbungee.Log
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -14,14 +14,25 @@ class DataKitBukkit : JavaPlugin() {
 
     override fun onEnable() {
         Log.logger = logger
-        dataClient = DataClientBootstrap(DataMessageHandler(server.pluginManager, server)).start()
+        DataKitLog.logger = logger
+        Log.info("Starting")
+        val handler = DataMessageHandler(server.pluginManager, server)
+        dataClient = DataClientBootstrap(handler).start()
+        handler.dataClient = dataClient
+        instance = this
     }
 
     override fun onDisable() {
+        Log.info("Bye")
         dataClient.shutdown()
     }
 
     fun send(deltaMessage: DeltaMessage) {
+        Log.debug(deltaMessage.toString())
         dataClient.send(deltaMessage)
+    }
+
+    companion object {
+        @JvmStatic lateinit var instance: DataKitBukkit
     }
 }

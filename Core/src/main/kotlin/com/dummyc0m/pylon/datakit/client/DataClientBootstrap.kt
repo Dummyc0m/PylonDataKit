@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.client
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.network.MessageHandler
 import com.dummyc0m.pylon.datakit.network.message.DataMessage
 import com.dummyc0m.pylon.pyloncore.ConfigFile
@@ -24,7 +24,7 @@ class DataClientBootstrap(val dataMessageHandler: MessageHandler<DataMessage>) {
 
     fun start(): DataClient {
         if (config.key.equals("defaultKey")) {
-            Log.info("default key detected, please edit the config")
+            DataKitLog.info("default key detected, please edit the config")
         }
 
         return DataClient(config.ip,

@@ -74,6 +74,29 @@
                         <configuration>
                             <minimizeJar>true</minimizeJar>
                             <!--<createDependencyReducedPom>true</createDependencyReducedPom>-->
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.io.netty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.fasterxml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.google</shadedPattern>
+                                </relocation>
+                                <!--<relocation>-->
+                                <!--<pattern>com.mysql</pattern>-->
+                                <!--<shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.mysql</shadedPattern>-->
+                                <!--</relocation>-->
+                                <!--<relocation>-->
+                                <!--<pattern>org.sqlite</pattern>-->
+                                <!--<shadedPattern>com.dummyc0m.pylon.datakit.extlib.org.sqlite</shadedPattern>-->
+                                <!--</relocation>-->
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -107,18 +130,4 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>Spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
-    <properties>
-        <bukkit.version>LATEST</bukkit.version>
-        <!--<kotlin.version>1.0.3</kotlin.version>-->
-    </properties>
-
-
 </project>

@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.client
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.network.MessageHandler
 import com.dummyc0m.pylon.datakit.network.MessageManager
 import com.dummyc0m.pylon.datakit.network.message.DataMessage
@@ -11,8 +11,6 @@ import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioSocketChannel
-import io.netty.handler.logging.LogLevel
-import io.netty.handler.logging.LoggingHandler
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
@@ -36,7 +34,7 @@ class DataClient(val ip: String,
         val b = Bootstrap()
                 .group(eventLoop)
                 .channel(NioSocketChannel::class.java)
-                .handler(LoggingHandler(LogLevel.INFO))
+//                .handler(LoggingHandler(LogLevel.DEBUG))
                 .handler(DataClientInitializer(sslCtx, ip, port, messageManager))
         channel = b.connect(ip, port).sync().channel()
 
@@ -46,7 +44,7 @@ class DataClient(val ip: String,
                 .put("key", key)
                 .put("id", serverId)
                 .toString())
-        Log.info("Started on $ip:$port")
+        DataKitLog.info("Started on $ip:$port")
 
 //            val `in` = BufferedReader(InputStreamReader(System.`in`))
 //            while (true) {
@@ -74,8 +72,9 @@ class DataClient(val ip: String,
     }
 
     fun shutdown() {
+        DataKitLog.info("Shutting down")
         messageManager.shutdown()
-        channel.closeFuture().sync()
+        channel.close().sync()
         eventLoop.shutdownGracefully()
     }
 }

@@ -1,4 +1,4 @@
-package com.dummyc0m.pylon.datakitbungee
+package com.dummyc0m.pylon.datakit
 
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -6,11 +6,18 @@ import java.util.logging.Logger
 /**
  * Created by Dummy on 6/13/16.
  */
-internal object Log {
+object DataKitLog {
     lateinit var logger: Logger
+    var debug: Boolean = false
 
     fun info(msg: String) {
         logger.info(msg)
+    }
+
+    fun debug(msg: String) {
+        if (debug) {
+            logger.info(msg)
+        }
     }
 
     fun warn(msg: String) {

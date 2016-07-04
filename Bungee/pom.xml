@@ -74,6 +74,28 @@
                         <configuration>
                             <minimizeJar>true</minimizeJar>
                             <!--<createDependencyReducedPom>true</createDependencyReducedPom>-->
+                            <relocations>
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.io.netty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.fasterxml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.google</shadedPattern>
+                                </relocation>
+                                <!--<relocation>-->
+                                <!--<pattern>com.mysql</pattern>-->
+                                <!--<shadedPattern>com.dummyc0m.pylon.datakit.extlib.com.mysql</shadedPattern>-->
+                                <!--</relocation>-->
+                                <!--<relocation>-->
+                                <!--<pattern>org.sqlite</pattern>-->
+                                <!--<shadedPattern>com.dummyc0m.pylon.datakit.extlib.org.sqlite</shadedPattern>-->
+                                <!--</relocation>-->
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -97,7 +119,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>${spigot.version}</version>
+            <version>${bungee.version}</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
@@ -105,7 +127,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>${spigot.version}</version>
+            <version>${bungee.version}</version>
             <type>javadoc</type>
             <scope>provided</scope>
         </dependency>
@@ -116,18 +138,4 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>bungeecord-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-
-    <properties>
-        <spigot.version>LATEST</spigot.version>
-        <!--<kotlin.version>1.0.3</kotlin.version>-->
-    </properties>
-
-
 </project>

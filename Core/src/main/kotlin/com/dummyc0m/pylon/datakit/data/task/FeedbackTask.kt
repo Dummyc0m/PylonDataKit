@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.data.task
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.data.DataStore
 import com.dummyc0m.pylon.datakit.data.NioDataHandler
 import com.dummyc0m.pylon.datakit.data.State
@@ -20,7 +20,7 @@ class FeedbackTask(private val deltaMessage: DeltaMessage,
                 data.dereference()
             }
             if(data.state === State.FEEDBACK && data.references === 0) {
-                Log.info("Unloading (onlineUUID) ${data.onlineUUID}")
+                DataKitLog.debug("Unloading (onlineUUID) ${data.onlineUUID}")
                 dataHandler.unload(data.onlineUUID)
             }
         }

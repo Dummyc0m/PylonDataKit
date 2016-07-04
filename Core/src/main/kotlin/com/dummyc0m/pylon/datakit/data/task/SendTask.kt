@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.data.task
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.data.UserData
 import com.dummyc0m.pylon.datakit.network.MessageManager
 import com.dummyc0m.pylon.datakit.network.message.DataMessage
@@ -21,7 +21,7 @@ class SendTask(private val offlineUUID: UUID,
             dataMessage.jsonData = data.data
             messageManager.send(dataMessage, serverId)
         } else {
-            Log.wtf("data does not exist for (offlineUUID) $offlineUUID when sending to $serverId")
+            DataKitLog.warn("data does not exist for (offlineUUID) $offlineUUID when sending to $serverId")
         }
     }
 }

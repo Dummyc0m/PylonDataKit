@@ -1,5 +1,5 @@
-name: DataKitBungee
+name: DataKit
 version: ${project.version}
-main: com.dummyc0m.pylon.datakitbungee.DataKitBungee
+main: com.dummyc0m.pylon.datakit.bungee.DataKitBungee
 author: Dummyc0m
-prefix: DataKitBungee
+prefix: DataKit

@@ -23,10 +23,10 @@ class DataKitBootstrap(val executorService: ExecutorService) {
 
     fun start(): DataKit {
         if(config.key.equals("defaultKey")) {
-            Log.info("default key detected, generating a new key")
+            DataKitLog.debug("default key detected, generating a new key")
             config.key = UUID.randomUUID().toString()
             configFile.save()
-            Log.info("the new key is $config.key")
+            DataKitLog.debug("the new key is $config.key")
         }
 
         return DataKit(config.ip,

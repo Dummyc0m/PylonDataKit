@@ -12,11 +12,15 @@ class DataKitConfig {
 
     val dbType = "mysql"
 
-    val dbUrl = "databaseUrl"
+    val dbUrl = "jdbc:mysql://host:port/database"
 
     val dbUsername = "username"
 
     val dbPassword = "password"
 
     val estimateLoad = 20
+
+    val disconnection = "Connection throttled, please try again later."
+
+    val debug = false
 }

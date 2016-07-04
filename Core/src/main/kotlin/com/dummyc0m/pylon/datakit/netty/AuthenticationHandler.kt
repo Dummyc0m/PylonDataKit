@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.netty
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.network.MessageManager
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelHandlerContext
@@ -17,10 +17,10 @@ class AuthenticationHandler(private val key: String, private val messageManager:
         try {
             val json = mapper.readTree(p1)
             if (key.equals(json.get("key")?.textValue()) && json.has("id")) {
-                Log.info("${p0.name()} bukkit authenticated")
                 val id = json.get("id").textValue()
+                DataKitLog.info("ServerId:$id authenticated")
                 if(messageManager.contains(id)) {
-                    Log.wtf(p0.name() + " Id Conflict")
+                    DataKitLog.wtf(p0.name() + " Id Conflict")
                     p0.disconnect()
                     p0.close()
                 } else {
@@ -28,12 +28,12 @@ class AuthenticationHandler(private val key: String, private val messageManager:
                     p0.pipeline().remove(this)
                 }
             } else {
-                Log.info(p0.name() + " Not Authenticated")
+                DataKitLog.debug(p0.name() + " Not Authenticated")
                 p0.disconnect()
                 p0.close()
             }
         } catch (exception: Exception) {
-            Log.info(p0.name() + " Not Authenticated")
+            DataKitLog.debug(p0.name() + " Not Authenticated")
             p0.disconnect()
             p0.close()
         }

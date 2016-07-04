@@ -1,6 +1,6 @@
 package com.dummyc0m.pylon.datakit.data
 
-import com.dummyc0m.pylon.datakit.Log
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
@@ -28,7 +28,7 @@ class UserData(val onlineUUID: UUID,
     fun patch(nodeDataMap: Map<String, JsonNode>) {
         synchronized(_data) {
             if(!_data.isObject) {
-                Log.wtf("_data is null")
+                DataKitLog.wtf("_data is null")
             }
             for((key, delta) in nodeDataMap) {
                 val nodes = key.split(".".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -57,6 +57,10 @@ class UserData(val onlineUUID: UUID,
         _references.decrementAndGet()
     }
 
+    override fun toString(): String {
+        return "UserData(onlineUUID=$onlineUUID, offlineUUID=$offlineUUID, state=$state, _data=$_data, _references=$_references)"
+    }
+
     companion object {
         val factory = JsonNodeFactory(false)
         val emptyData = factory.objectNode()
@@ -65,7 +69,7 @@ class UserData(val onlineUUID: UUID,
 
 enum class State {
     LOADING, //received load network, loading data
-    LOADED, //loaded data, awaiting query (switch to this after leaving one server)
-    CONNECTED, //connected to a server
-    FEEDBACK //disconnected but have not received save(feedback) network yet
+    LOADED, //loaded data
+    FEEDBACK, //disconnected but have not received save(feedback) network yet
+    UNLOADING
 }

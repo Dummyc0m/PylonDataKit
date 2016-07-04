@@ -40,6 +40,10 @@ class DeltaMessage : Message {
         return rootNode
     }
 
+    override fun toString(): String {
+        return "DeltaMessage(_nodeDataMap=$_nodeDataMap, offlineUUID=$offlineUUID, dereference=$dereference)"
+    }
+
     companion object {
         private val defaultUUID = UUID.randomUUID()
         private val mapper = ObjectMapper()
