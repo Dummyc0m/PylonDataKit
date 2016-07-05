@@ -1,5 +1,6 @@
 package com.dummyc0m.pylon.datakit.bungee
 
+import com.dummyc0m.pylon.datakit.DataKitLog
 import com.dummyc0m.pylon.datakit.data.NioDataHandler
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.connection.ProxiedPlayer
@@ -23,10 +24,10 @@ class PluginListener(private val dataHandler: NioDataHandler, private val discon
                     dataHandler.send(player.getOfflineUniqueId(),
                             player.uniqueId, player.server.info.name)
                 } else {
-                    Log.info("Loaded data for (onlineUUID) ${player.uniqueId}")
+                    DataKitLog.info("Loaded data for (onlineUUID) ${player.uniqueId}")
                 }
             } else {
-                Log.wtf("An error occured during loading, disconnecting (onlineUUID) ${player.uniqueId}")
+                DataKitLog.wtf("An error occured during loading, disconnecting (onlineUUID) ${player.uniqueId}")
                 player.disconnect(disconnection)
             }
         })

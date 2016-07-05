@@ -12,10 +12,10 @@ import net.md_5.bungee.api.plugin.Plugin
 class DataKitBungee : Plugin() {
     private lateinit var dataKit: DataKit
     override fun onEnable() {
-        Log.logger = logger
         DataKitLog.logger = logger
-        Log.info("Starting")
         val bootstrap = DataKitBootstrap(executorService)
+        DataKitLog.debug = bootstrap.config.debug
+        DataKitLog.info("Starting")
         dataKit = bootstrap.start()
 
         //start bungee
@@ -23,7 +23,7 @@ class DataKitBungee : Plugin() {
     }
 
     override fun onDisable() {
-        Log.info("Bye")
+        DataKitLog.info("Bye")
         dataKit.shutdown()
     }
 }

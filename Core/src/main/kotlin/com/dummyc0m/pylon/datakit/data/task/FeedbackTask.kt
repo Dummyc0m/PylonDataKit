@@ -19,7 +19,7 @@ class FeedbackTask(private val deltaMessage: DeltaMessage,
             if(deltaMessage.dereference) {
                 data.dereference()
             }
-            if(data.state === State.FEEDBACK && data.references === 0) {
+            if (data.state === State.FEEDBACK && data.references <= 0) {
                 DataKitLog.debug("Unloading (onlineUUID) ${data.onlineUUID}")
                 dataHandler.unload(data.onlineUUID)
             }

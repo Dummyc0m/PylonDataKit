@@ -44,7 +44,7 @@ class NioDataHandler(private val factory: DBConnectionFactory,
         DataKitLog.debug("Checking (onlineUUID) $onlineUUID")
         val prevData = store.getUserDataOnline(onlineUUID)
         if (prevData != null) {
-            if (prevData.state == State.FEEDBACK && prevData.references !== 0) {
+            if (prevData.state == State.FEEDBACK && prevData.references > 0) {
                 prevData.state = State.LOADED
                 DataKitLog.debug("(onlineUUID) $onlineUUID already loaded, using it")
                 callback.invoke(true)
@@ -64,7 +64,7 @@ class NioDataHandler(private val factory: DBConnectionFactory,
         service.submit(FeedbackTask(deltaMessage, store, this))
     }
 
-    fun unload(onlineUUID: UUID) {
+    internal fun unload(onlineUUID: UUID) {
         store.getUserDataOnline(onlineUUID)?.state = State.UNLOADING
         service.submit(UnloadTask(onlineUUID, store, factory))
     }
