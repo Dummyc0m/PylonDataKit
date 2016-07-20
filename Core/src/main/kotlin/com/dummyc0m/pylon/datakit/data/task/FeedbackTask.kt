@@ -15,6 +15,7 @@ class FeedbackTask(private val deltaMessage: DeltaMessage,
     override fun run() {
         val data = store.getUserDataOffline(deltaMessage.offlineUUID)
         if(data != null) {
+            DataKitLog.debug("Feedback received ${deltaMessage.toString()}")
             data.patch(deltaMessage.nodeDataMap)
             if(deltaMessage.dereference) {
                 data.dereference()

@@ -2,8 +2,7 @@ package com.dummyc0m.pylon.datakit.data
 
 import com.dummyc0m.pylon.datakit.DataKitLog
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -20,30 +19,68 @@ class UserData(val onlineUUID: UUID,
         set(value) = synchronized(_data) {
             _data = value
         }
-    private var _data: ObjectNode = UserData.emptyData
+    private var _data: ObjectNode = emptyData
     private var _references : AtomicInteger = AtomicInteger()
     val references : Int
         get() = _references.get()
 
     fun patch(nodeDataMap: Map<String, JsonNode>) {
+        DataKitLog.debug("Patching user data")
         synchronized(_data) {
-            if(!_data.isObject) {
+            if (_data === emptyData) {
                 DataKitLog.wtf("_data is null")
             }
             for((key, delta) in nodeDataMap) {
-                val nodes = key.split(".".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                if(nodes.size > 0) {
+                val nodes = key.split(".")//.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                if (nodes.size > 1) {
                     var previousNode = _data
                     var currentNode = previousNode.get(nodes.first()) as ObjectNode?
-                    for(i in 0..nodes.size - 1) {
+                    for (i in 0..(nodes.size - 2)) {
                         currentNode = previousNode.get(nodes.get(i)) as ObjectNode?
-                        if(currentNode == null ) {
+                        if (currentNode === null) {
                             currentNode = ObjectNode(factory)
-                            previousNode.set(nodes.get(0), currentNode)
+                            previousNode.set(nodes.get(i), currentNode)
                         }
                         previousNode = currentNode
                     }
-                    currentNode?.set(nodes.last(), delta)
+                    if (currentNode !== null) {
+                        val lastNode = currentNode.get(nodes.last())
+                        if (lastNode !== null) {
+                            when (lastNode) {
+                                is IntNode -> {
+                                    if (delta is IntNode) {
+                                        currentNode.put(nodes.last(), lastNode.asInt() + delta.asInt())
+                                    } else {
+                                        currentNode.set(nodes.last(), delta)
+                                    }
+                                }
+                                is LongNode -> {
+                                    if (delta is LongNode) {
+                                        currentNode.put(nodes.last(), lastNode.asLong() + delta.asLong())
+                                    } else {
+                                        currentNode.set(nodes.last(), delta)
+                                    }
+                                }
+                                is DoubleNode -> {
+                                    if (delta is DoubleNode) {
+                                        currentNode.put(nodes.last(), lastNode.asDouble() + delta.asDouble())
+                                    } else {
+                                        currentNode.set(nodes.last(), delta)
+                                    }
+                                }
+                                is FloatNode -> {
+                                    if (delta is FloatNode) {
+                                        currentNode.put(nodes.last(), lastNode.asDouble() + delta.asDouble())
+                                    } else {
+                                        currentNode.set(nodes.last(), delta)
+                                    }
+                                }
+                                else -> currentNode.set(nodes.last(), delta)
+                            }
+                        } else {
+                            currentNode.set(nodes.last(), delta)
+                        }
+                    }
                 }
             }
         }

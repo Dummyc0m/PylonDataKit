@@ -23,8 +23,9 @@ class UnloadTask(private val onlineUUID: UUID,
                 statement.setString(2, onlineUUID.toString())
                 statement.execute()
                 store.deleteUserOnline(onlineUUID)
+                DataKitLog.debug("Successfully unloaded (onlineUUID) $onlineUUID")
             } else {
-                DataKitLog.debug("User (onlineUUID) $onlineUUID does not exist when unloading")
+                DataKitLog.debug("(onlineUUID) $onlineUUID does not exist when unloading")
             }
             statement.close()
             connection.close()

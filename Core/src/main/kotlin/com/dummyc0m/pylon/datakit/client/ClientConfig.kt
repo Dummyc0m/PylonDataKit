@@ -12,5 +12,10 @@ class ClientConfig {
 
     val serverId = "bukkitServer"
 
+    //todo remove dev
     val debug = false
+
+    val devDisableLock = false
+
+    val devDisableClient = false
 }

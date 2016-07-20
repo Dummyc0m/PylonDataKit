@@ -19,13 +19,20 @@ class DataKitBukkit : JavaPlugin() {
     override fun onEnable() {
         DataKitLog.logger = logger
         val protect = ProtectionHandler()
-        val handler = DataMessageHandler(server.pluginManager, server, protect)
-        server.pluginManager.registerEvents(ProtectionListener(protect), this)
+        val handler = DataMessageHandler(this, protect)
         val bootstrap = DataClientBootstrap(handler)
+        //todo remove dev
+        if (!bootstrap.config.devDisableLock) {
+            server.pluginManager.registerEvents(ProtectionListener(protect), this)
+        }
+        //todo remove all debug log
         DataKitLog.debug = bootstrap.config.debug
         DataKitLog.info("Starting")
-        dataClient = bootstrap.start()
-        handler.dataClient = dataClient
+        //todo remove dev
+        if (!bootstrap.config.devDisableClient) {
+            dataClient = bootstrap.start()
+            handler.dataClient = dataClient
+        }
         _instance = this
     }
 
@@ -35,7 +42,6 @@ class DataKitBukkit : JavaPlugin() {
     }
 
     fun send(deltaMessage: DeltaMessage) {
-        DataKitLog.debug(deltaMessage.toString())
         dataClient.send(deltaMessage)
     }
 
